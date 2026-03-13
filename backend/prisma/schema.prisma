@@ -7,42 +7,62 @@ datasource db {
   provider = "postgresql"
 }
 
-model Item {
-  id          String     @id @default(uuid())
-  sku         String     @unique
-  name        String
-  stock       Int        @default(0)
-  buyPrice    Decimal    @map("buy_price")
-  sellPrice   Decimal    @map("sell_price")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  
-  saleItems   SaleItem[]
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("admin")
 
-  @@map("items")
+  @@map("user")
 }
 
-model Sale {
-  id            String     @id @default(uuid())
-  receiptNumber String     @unique @map("receipt_number")
-  totalAmount   Decimal    @map("total_amount")
-  saleDate      DateTime   @default(now()) @map("sale_date")
+model Vendor {
+  id         Int         @id @default(autoincrement())
+  vendorName String      @map("vendor_name")
+  description String?
+  contactInfo String?    @map("contact_info")
+  items      Item[]
+
+  @@map("vendor")
+}
+
+model Category {
+  id           Int         @id @default(autoincrement())
+  categoryName String      @map("category_name")
+  items        Item[]
+
+  @@map("category")
+}
+
+model Item {
+  id          Int      @id @default(autoincrement())
+  itemName    String   @map("item_name")
+  quantity    Int
+  unit        String   // 'pcs' or 'box'
+  buyPrice    Decimal  @map("buy_price") @db.Decimal(15, 2)
+  sellPrice   Decimal? @map("sell_price") @db.Decimal(15, 2)
+  lowestPrice Decimal? @map("lowest_price") @db.Decimal(15, 2)
+
+  categoryId  Int      @map("category_id")
+  category    Category @relation(fields: [categoryId], references: [id])
   
-  saleItems     SaleItem[]
+  vendorId    Int      @map("vendor_id")
+  vendor      Vendor   @relation(fields: [vendorId], references: [id])
+  
+  sales       Sales[]
+
+  @@map("item")
+}
+
+model Sales {
+  id          Int       @id @default(autoincrement())
+  quantity    Int
+  totalAmount Decimal   @map("total_amount") @db.Decimal(15, 2)
+  
+  profit      Decimal   @db.Decimal(15, 2)
+
+  itemId      Int       @map("item_id")
+  item        Item @relation(fields: [itemId], references: [id])
 
   @@map("sales")
-}
-
-model SaleItem {
-  id        String  @id @default(uuid())
-  saleId    String  @map("sale_id")
-  itemId    String  @map("item_id")
-  quantity  Int
-  unitPrice Decimal @map("unit_price") // Locked price at time of sale
-  subtotal  Decimal
-
-  sale      Sale    @relation(fields: [saleId], references: [id])
-  item      Item    @relation(fields: [itemId], references: [id])
-
-  @@map("sale_items")
 }
