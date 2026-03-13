@@ -13,23 +13,46 @@ model User {
   passwordHash String   @map("password_hash")
   role         String   @default("admin")
 
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy Int?     @map("created_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy Int?     @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
+
   @@map("user")
 }
 
 model Vendor {
-  id         Int         @id @default(autoincrement())
-  vendorName String      @map("vendor_name")
+  id          Int     @id @default(autoincrement())
+  vendorName  String  @map("vendor_name")
   description String?
-  contactInfo String?    @map("contact_info")
-  items      Item[]
+  contactInfo String? @map("contact_info")
+
+  items Item[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy Int?     @map("created_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy Int?     @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
 
   @@map("vendor")
 }
 
 model Category {
-  id           Int         @id @default(autoincrement())
-  categoryName String      @map("category_name")
-  items        Item[]
+  id           Int    @id @default(autoincrement())
+  categoryName String @map("category_name")
+
+  items Item[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy Int?     @map("created_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy Int?     @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
 
   @@map("category")
 }
@@ -38,31 +61,44 @@ model Item {
   id          Int      @id @default(autoincrement())
   itemName    String   @map("item_name")
   quantity    Int
-  unit        String   // 'pcs' or 'box'
+  unit        String
   buyPrice    Decimal  @map("buy_price") @db.Decimal(15, 2)
   sellPrice   Decimal? @map("sell_price") @db.Decimal(15, 2)
   lowestPrice Decimal? @map("lowest_price") @db.Decimal(15, 2)
 
-  categoryId  Int      @map("category_id")
-  category    Category @relation(fields: [categoryId], references: [id])
-  
-  vendorId    Int      @map("vendor_id")
-  vendor      Vendor   @relation(fields: [vendorId], references: [id])
-  
-  sales       Sales[]
+  categoryId Int      @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  vendorId Int    @map("vendor_id")
+  vendor   Vendor @relation(fields: [vendorId], references: [id])
+
+  sales Sales[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy Int?     @map("created_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy Int?     @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
 
   @@map("item")
 }
 
 model Sales {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   quantity    Int
-  totalAmount Decimal   @map("total_amount") @db.Decimal(15, 2)
-  
-  profit      Decimal   @db.Decimal(15, 2)
+  totalAmount Decimal  @map("total_amount") @db.Decimal(15, 2)
+  profit      Decimal  @db.Decimal(15, 2)
 
-  itemId      Int       @map("item_id")
-  item        Item @relation(fields: [itemId], references: [id])
+  itemId Int  @map("item_id")
+  item   Item @relation(fields: [itemId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy Int?     @map("created_by")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedBy Int?     @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
 
   @@map("sales")
 }
