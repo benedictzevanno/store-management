@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
+model Users {
   id           Int      @id @default(autoincrement())
   email        String   @unique
   passwordHash String   @map("password_hash")
@@ -20,7 +20,7 @@ model User {
   deletedAt DateTime? @map("deleted_at")
   deletedBy Int?      @map("deleted_by")
 
-  @@map("user")
+  @@map("users")
 }
 
 model Vendor {
