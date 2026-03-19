@@ -16,7 +16,7 @@
     // Stricter Typechecking Options (Keeping your clean code standards)
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
 
     // Modern Build Options
     "verbatimModuleSyntax": true,

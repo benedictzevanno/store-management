@@ -3,12 +3,14 @@ import { Prisma } from '../generated/prisma/client.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 
 export const globalErrorHandler = (
-    err: any,
-    req: Request,
-    res: Response,
-    next: NextFunction
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ): void => {
-  console.error(`[Error] ${req.method} ${req.path} >> StatusCode:: ${err.statusCode || 500}, Message:: ${err.message}`);
+  console.error(
+    `[Error] ${req.method} ${req.path} >> StatusCode:: ${err.statusCode || 500}, Message:: ${err.message}`,
+  );
 
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
@@ -23,6 +25,7 @@ export const globalErrorHandler = (
     }
   }
 
-  const errorData = process.env.NODE_ENV !== 'production' ? { stack: err.stack } : undefined;
+  const errorData =
+    process.env.NODE_ENV !== 'production' ? { stack: err.stack } : undefined;
   res.status(statusCode).json(new ApiResponse(statusCode, message, errorData));
 };
