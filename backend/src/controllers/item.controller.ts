@@ -30,8 +30,10 @@ export const getItems = async (
     try {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
+        const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
+        const vendorId = req.query.vendorId ? parseInt(req.query.vendorId as string) : undefined;
 
-        const paginationData = await executeGetItems(page, limit);
+        const paginationData = await executeGetItems(page, limit, categoryId, vendorId);
         res
         .status(200)
         .json(

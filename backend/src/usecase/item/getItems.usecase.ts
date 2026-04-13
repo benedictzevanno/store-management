@@ -1,9 +1,11 @@
 import prisma from "../../lib/prisma.js";
 
-export const executeGetItems = async (page: number, limit: number) => {
+export const executeGetItems = async (page: number, limit: number, categoryId?: number, vendorId?: number) => {
     const skip = (page - 1) * limit; 
-    const whereCondition = { deletedAt: null };
-    
+    const whereCondition = { deletedAt: null, 
+        ...(categoryId ? { categoryId } : {}), 
+        ...(vendorId ? { vendorId } : {}) };
+
     const [items, totalItems] = await Promise.all([
         prisma.item.findMany({
             where: whereCondition,
