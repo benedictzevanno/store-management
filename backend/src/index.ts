@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import vendorRoutes from './routes/vendor.routes.js';
+import itemRoutes from './routes/item.routes.js';
 import categoryRoutes from './routes/category.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mount Routes
+app.use ('/api/items', itemRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/categories', categoryRoutes);
 
