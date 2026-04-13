@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
-import itemRoutes from './routes/item.routes.js';
 import vendorRoutes from './routes/vendor.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 
@@ -18,7 +17,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mount Routes
-app.use('/api/items', itemRoutes);
 app.use('/api/vendors', vendorRoutes);
 
 // Health Check
