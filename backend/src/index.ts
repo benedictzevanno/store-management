@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import itemRoutes from './routes/item.routes.js';
 import vendorRoutes from './routes/vendor.routes.js';
 import categoryRoutes from './routes/category.routes.js';
+import salesRoutes from './routes/sales.routes.js';
 import { globalErrorHandler } from './middleware/error.middleware.js';
 
 dotenv.config();
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Mount Routes
+app.use('/api/sales', salesRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/categories', categoryRoutes);
