@@ -26,8 +26,14 @@ export const executeCreateSales = async (data: CreateSalesDTO) => {
     }
 
     const sellPrice = Number(item.sellPrice.toString());
+
+    if (sellPrice > data.price) {
+      throw new Error('Harga jual (price) harus lebih tinggi dari standar sell price');
+    }
+
+    // const sellPrice = Number(item.sellPrice.toString());
     const buyPrice = Number(item.buyPrice.toString());
-    const totalAmount = sellPrice * data.quantity;
+    const totalAmount = data.price * data.quantity;
     const profit = totalAmount - (buyPrice * data.quantity);
 
     await trans.item.update({
