@@ -3,11 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import {
-  Copy,
   Download,
   FileSpreadsheet,
   Loader2,
-  Upload,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -20,8 +18,17 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type ParsedWorkbook = Record<string, Array<Record<string, unknown>>>;
+type TableRowData = Record<string, unknown>;
 
 const ALL_SHEETS = "__all__";
 
@@ -40,7 +47,6 @@ function Home() {
   const [workbookData, setWorkbookData] = useState<ParsedWorkbook>({});
   const [isParsing, setIsParsing] = useState(false);
   const [error, setError] = useState("");
-  const [copyState, setCopyState] = useState("Copy JSON");
 
   useEffect(() => {
     setSelectedSheet(ALL_SHEETS);
@@ -117,16 +123,6 @@ function Home() {
     }
   }
 
-  async function copyJson() {
-    if (!convertedData) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(jsonPreview);
-    setCopyState("Copied!");
-    window.setTimeout(() => setCopyState("Copy JSON"), 1500);
-  }
-
   function downloadJson() {
     if (!convertedData) {
       return;
@@ -143,6 +139,30 @@ function Home() {
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  const tableRows = useMemo<TableRowData[]>(() => {
+    if (!convertedData) {
+      return [];
+    }
+
+    if (Array.isArray(convertedData)) {
+      return convertedData;
+    }
+
+    return Object.entries(convertedData).flatMap(([sheetName, rows]) =>
+      rows.map((row) => ({ __sheet: sheetName, ...row } as TableRowData))
+    );
+  }, [convertedData]);
+
+  const tableColumns = useMemo(() => {
+    const columns = new Set<string>();
+
+    tableRows.forEach((row) => {
+      Object.keys(row).forEach((key) => columns.add(key));
+    });
+
+    return Array.from(columns);
+  }, [tableRows]);
 
   const rowCount = useMemo(() => {
     if (!convertedData) {
@@ -161,17 +181,17 @@ function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-zinc-50 via-white to-zinc-100 text-zinc-950 dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-900 dark:text-zinc-50">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-screen w-full max-w-none flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
         <section className="rounded-3xl border border-zinc-200 bg-white/90 p-6 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/80 sm:p-10">
           <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
             <div className="space-y-5">
               <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
                 <FileSpreadsheet className="size-4" />
-                Excel to JSON converter
+                Hi, Zeze Electronic! Ready to convert some spreadsheets?
               </div>
               <div className="space-y-3">
                 <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-                  Convert Excel files into clean JSON instantly.
+                  Upload file excel untuk mendapatkan pilihan sheets yang akan di convert!
                 </h1>
                 <p className="max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-400 sm:text-lg">
                   Upload a workbook, choose a sheet, preview the JSON output, and download
@@ -247,17 +267,6 @@ function Home() {
                         ))}
                       </select>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <Button type="button" onClick={copyJson} variant="secondary">
-                        <Copy className="size-4" />
-                        {copyState}
-                      </Button>
-                      <Button type="button" onClick={downloadJson}>
-                        <Download className="size-4" />
-                        Download JSON
-                      </Button>
-                    </div>
                   </div>
                 ) : (
                   <div className="rounded-xl border border-dashed border-zinc-200 px-4 py-6 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
@@ -269,32 +278,43 @@ function Home() {
           </div>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Card className="border-zinc-200 shadow-sm dark:border-zinc-800">
+        <section className="w-full h-full">
+          <Card className="w-full border-zinc-200 shadow-sm dark:border-zinc-800">
             <CardHeader>
-              <CardTitle>What gets exported</CardTitle>
+              <CardTitle>Table preview</CardTitle>
               <CardDescription>
-                Each sheet becomes an array of row objects, and “All sheets” wraps them in a single JSON object.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-zinc-600 dark:text-zinc-400">
-              <p>• Column headers become object keys.</p>
-              <p>• Empty cells are preserved as empty strings.</p>
-              <p>• Large workbooks stay local to your browser.</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-zinc-200 shadow-sm dark:border-zinc-800">
-            <CardHeader>
-              <CardTitle>JSON preview</CardTitle>
-              <CardDescription>
-                Review the converted payload before copying or downloading.
+                Review the converted rows in table format before downloading JSON.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <pre className="max-h-[620px] overflow-auto rounded-2xl border border-zinc-200 bg-zinc-950 p-4 text-sm leading-6 text-zinc-100 dark:border-zinc-800">
-                <code>{jsonPreview || "Upload an Excel file to see the JSON output here."}</code>
-              </pre>
+              {tableRows.length > 0 ? (
+                <div className="h-[72vh] overflow-auto rounded-2xl border border-zinc-200 dark:border-zinc-800">
+                  <Table>
+                    <TableHeader className="sticky top-0 z-10 bg-zinc-100 dark:bg-zinc-900">
+                      <TableRow>
+                        {tableColumns.map((column) => (
+                          <TableHead key={column}>{column}</TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {tableRows.map((row, index) => (
+                        <TableRow key={`${String(row["No"] ?? index)}-${index}`}>
+                          {tableColumns.map((column) => (
+                            <TableCell key={`${column}-${index}`}>
+                              {String(row[column] ?? "")}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-zinc-200 p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+                  Upload an Excel file to see the table preview here.
+                </div>
+              )}
             </CardContent>
           </Card>
         </section>
