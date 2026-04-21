@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation"
 
-export default function HomePage() {
-  redirect("/excel-parse");
+export default function Page() {
+  redirect("/components/excel-parse")
 }
